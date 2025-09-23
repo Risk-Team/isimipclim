@@ -10,6 +10,11 @@ Only wget and cdo are needed. These can be easily installed with:
 sudo apt-get install wget
 sudo apt-get install cdo
 ```
+To process multiple files efficiently, install `parallel`
+```
+sudo apt update
+sudo apt install parallel
+```
 
 For aggregating netCDF files into ncml files (optional), it is necessary to have a conda environment with R and climate4R packages installed. This can be done easily with:
 
