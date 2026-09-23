@@ -3,7 +3,7 @@
 
 # ISIMIP Climate Downloader
 
-**Reliable regional downloads and validation for ISIMIP3b climate forcing data**
+**Regional downloads and structural checks for selected ISIMIP3b climate data**
 
 [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?logo=python&logoColor=white)](https://www.python.org/)
 [![Data](https://img.shields.io/badge/Data-ISIMIP3b-007C91)](https://data.isimip.org/)
@@ -11,24 +11,26 @@
 
 </div>
 
-Download daily, bias-adjusted ISIMIP3b atmospheric data by model, variable,
-scenario, period, and geographic bounding box. Regional requests use the
-official ISIMIP Files API, so a multi-gigabyte global file does not need to be
-downloaded before cropping.
+A small command-line tool for downloading daily, bias-adjusted ISIMIP3b
+atmospheric data by model, variable, scenario, period, and geographic bounding
+box. Regional requests use the official ISIMIP Files API, so a multi-gigabyte
+global file does not need to be downloaded before cropping.
 
 ## Highlights
 
 - Server-side regional cutouts through the official ISIMIP API
 - Atomic outputs, with resume support for large full-file downloads
-- Correct ISIMIP model names, ensemble members, and published time blocks
+- Built-in mappings for five climate models and their supported time blocks
 - Concurrent downloads with clear failure reporting
-- NetCDF validation for dimensions, variables, dates, and spatial bounds
-- Optional multi-file combination and climate4R NcML generation
+- NetCDF structural checks for dimensions, variables, dates, and spatial bounds
+- Optional xarray combination and climate4R NcML generation command
 - A non-interactive CLI suitable for scripts and scheduled jobs
 
 ## Quick start
 
-Python 3.10 or newer is sufficient for downloading. From the repository root:
+Python 3.10 or newer is sufficient for downloading. The wrapper examples
+require Bash on Linux, macOS, or Windows Subsystem for Linux. From the
+repository root:
 
 ```bash
 bash script/isimip.sh \
@@ -139,8 +141,14 @@ python script/isimip.py validate \
 ```
 
 The validator checks that the file has a NetCDF/HDF5 signature, non-empty
-`time`, `lat`, and `lon` dimensions, the requested variable, and coordinates
-inside the requested bounds. It prints a JSON summary for each file.
+`time`, `lat`, and `lon` dimensions, chronological time coordinates, the
+requested variable, and coordinates inside the requested bounds. It prints a
+JSON summary containing variable dimensions, data types, units, standard names,
+and compression metadata.
+
+This is a structural sanity check, not a complete ISIMIP protocol or scientific
+quality-control tool. It does not certify metadata completeness, physical value
+ranges, or scientific suitability.
 
 ## Output layout
 
@@ -208,6 +216,22 @@ python -m unittest discover -s tests -v
 
 To test a real download, use the small Quick start bounding box and then run
 the validator in an environment containing `xarray` and `netCDF4`.
+
+### Verification scope
+
+The current implementation has been checked with:
+
+- Unit tests for file-block selection, model mapping, invalid bounds, and
+  download failure propagation
+- A live GFDL-ESM4 regional download for `tas` and `pr`
+- Inspection and combination of the downloaded NetCDF files
+- URL availability checks for all five supported models
+
+Complete global downloads were not run because individual files can approach
+2 GB. NcML generation was not run because the available Conda environments did
+not contain climate4R `loadeR`; that path requires a user-provided environment.
+The supported models, variables, and time blocks are defined in the source and
+may need updating if the upstream repository changes.
 
 ## Data source and citation
 
